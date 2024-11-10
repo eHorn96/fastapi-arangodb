@@ -127,7 +127,8 @@ async def authenticate_user(username: str, password: str) -> str:
 		user_db = get_sys_client().db(username=username, password=password, auth_method="jwt")
 
 	except JWTAuthError as error:
-		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=error)
+		logger.debug(error.__str__())
+		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication failed")
 	logger.info("Initiated Login Flow.")
 	logger.info(f"Username exists: {bool(username)}")
 	logger.info(f"Connecting to database")

@@ -1,10 +1,13 @@
-import os
 from contextlib import asynccontextmanager
 from typing import Sequence
 
 from dotenv import load_dotenv
+
+load_dotenv('.env')
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette import status
+from starlette.responses import HTMLResponse
 
 from v1.config.config import CORS_ALLOWED_ORIGIN
 from v1.routes import router
@@ -25,12 +28,9 @@ async def lifecycle(app: FastAPI):
 	logger.info("Entering lifecycle")
 
 	initialize_application()
-	load_dotenv('.devenv')
-	BASE_URL = os.environ.get('BASE_URL')
-	print(BASE_URL)
 
 	yield
-	print("Bye!")
+	logger.info("Application stopped.")
 
 
 app = FastAPI(lifespan=lifecycle)
@@ -43,7 +43,6 @@ origins: Sequence[str] = (
 logger.info("Adding CORS Middleware")
 cors = CORSMiddleware(
 	app, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-print(cors.__dict__)
 
 app.add_middleware(
 	middleware_class=CORSMiddleware, allow_origins=origins, allow_credentials=True,
@@ -52,9 +51,8 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-	return "works"
 
+	return HTMLResponse(
+		status_code=status.HTTP_410_GONE, content="<h1>Root not callable.</h1>"
 
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-	return {"message": f"Hello {name}"}
+	)

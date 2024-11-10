@@ -37,9 +37,9 @@ from fastapi import status
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.requests import Request
 
-from v1.config.config import ARANGO_ROOT_PW, BASE_URL, CORS_ALLOWED_ORIGIN
+from v1.config.config import ARANGO_ROOT_PW, CORS_ALLOWED_ORIGIN, DOMAIN
 from v1.models.models import UserRegister
-from .utils import (authenticate_user, get_current_active_user, )
+from .utils import (authenticate_user, get_current_active_user)
 from ..shared.initialize import initialize_application
 from ..shared.shared import get_sys_client, logger
 
@@ -67,14 +67,12 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
 
 	logger.info("User authenticated")
 	logger.info("Setting access token")
-	access_token = user_token
 	# Set the authToken cookie
 	logger.info("Set Response message")
-	response.set_cookie(
-		key="authToken", value=access_token, path="/", samesite="none", httponly=True, secure=True,
-		domain=CORS_ALLOWED_ORIGIN, )
 
-	logger.debug(response.__dict__)
+	response.set_cookie(
+		key="authToken", value=user_token, path="/", samesite="none", httponly=True, secure=True,
+		domain=CORS_ALLOWED_ORIGIN)
 
 	return {"message": "Logged in successfully"}
 
@@ -86,17 +84,15 @@ class LogoutResponse(Response):
 
 
 @auth_router.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(request: Request, response: Response) -> LogoutResponse:
+async def logout(request: Request, response: Response):
 	"""
 	:param response: FastAPI Response object used to delete the authentication cookie.
 	:return: A dictionary containing a success message indicating the user has been logged out.
 	"""
 	logger.info("Logging out user")
-	logger.debug(f"Cookie: {request.cookies.get('authToken')}")
-	response.delete_cookie(key="authToken", domain=BASE_URL)
-	logger.debug(f"Cookie now: {request.cookies.get('authToken')}")
-	logger.debug(f"Response: {response.__dict__}")
-	return LogoutResponse()
+	response.delete_cookie(key="authToken", path='/', domain=DOMAIN)
+	response.status_code = status.HTTP_200_OK
+	return response
 
 
 @auth_router.post("/register")
@@ -149,6 +145,7 @@ async def check_session_cookie(user: Annotated[dict | str, Depends(get_current_a
 	and the authenticated user's details such as username,
 	 full name, and additional properties
 	"""
+
 	logger.info("Started Auth PW Flow.")
 
 	logger.info(
