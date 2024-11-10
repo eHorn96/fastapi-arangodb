@@ -1,9 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import Sequence
 
-from dotenv import load_dotenv
-
-load_dotenv('.env')
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
@@ -13,6 +10,11 @@ from v1.config.config import CORS_ALLOWED_ORIGIN
 from v1.routes import router
 from v1.shared.initialize import initialize_application
 from v1.shared.shared import logger
+
+
+# from dotenv import load_dotenv
+# Comment this in if youre running outside of docker.
+# load_dotenv('.env')
 
 
 @asynccontextmanager
