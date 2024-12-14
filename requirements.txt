@@ -82,7 +82,7 @@ python-arango==8.1.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-jose==3.3.0
-python-multipart==0.0.17
+python-multipart==0.0.18
 python-ulid==3.0.0
 PyYAML==6.0.2
 pyzmq==26.2.0
